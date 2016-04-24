@@ -139,3 +139,6 @@ Here is the diff of the two config files:
 < # CONFIG_DEBUG_HOTPLUG_CPU0 is not set
 3687d3677
 < # CONFIG_RCU_TORTURE_TEST is not set
+
+We were successfully able to patch and build a BFS-enabled kernel. Booting was
+also successful.
