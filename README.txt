@@ -142,3 +142,28 @@ Here is the diff of the two config files:
 
 We were successfully able to patch and build a BFS-enabled kernel. Booting was
 also successful.
+
+
+PART 3 WRITTEN ANSWERS
+
+First, we re-ran the test for task 1. Here are our observations:
+
+Even among processes that share the same nice values, the PR column has
+different priorities for each process. It seems that BFS assigns unique
+priorities even to processes that share nice values. Additionally, although the
+same nice values were used as for the CFS scheduler, the proportion of CPU% was
+slightly different (62:38 as opposed to 70:30). Finally, we observed that the
+CPU% values were less stable with BFS than with CFS.
+
+Next, we re-ran the test for task 2. Here are our observations:
+
+As mentioned in the assignment description, the BFS scheduler allows for
+unprivileged real-time tasks. However, when a process is run on the real-time
+scheduler without root permission, it doesn't fully preempt all other processes
+as it did in Part 1 above.  For instance, at some times the CPU% is 99.3% and at
+other times the CPU% is just 23.7%. The PR column is also highly variable (it is
+always greater than or equal to 0). However, when the process is switched to the
+real-time scheduler with root permission, the PR column stays consistent at -2,
+and the real-time process preempts all other processes nearly 100% of the time
+(this is identical to the behavior of the CFS scheduler with root permission, as
+observed above).
