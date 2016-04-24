@@ -167,3 +167,37 @@ real-time scheduler with root permission, the PR column stays consistent at -2,
 and the real-time process preempts all other processes nearly 100% of the time
 (this is identical to the behavior of the CFS scheduler with root permission, as
 observed above).
+
+
+PART 4 WRITTEN ANSWERS
+
+First, we attempted a kernel compile of the stock 4.1.18 kernel (i.e. the kernel
+that does not use BFS) with both the BFS and CFS schedulers. We used the time
+command to track the execution time of the script, and noted the following
+compilation times:
+
+BFS: 4m 7.098s
+CFS: 4m 22.395s
+
+Thus, as predicted, the BFS scheduler is capable of compiling the Linux kernel
+more quickly than the CFS scheduler.
+
+For our own stress test, we used the sysbench tool (available through AUR) to
+monitor CPU performance by factoring large prime numbers. The following command
+was executed:
+
+sysbench --test=cpu --cpu-max-prime=80000 --num-threads=4 run
+
+This test factors prime numbers less than 80000 on 4 threads, and is thus a good
+example of a command that places high stress on the CPU. The following execution
+times were noted:
+
+BFS: 41.7264s
+CFS: 43.8146s
+
+Thus, while the difference is rather small, we noticed that BFS consistently
+outperforms CFS in this stress test. As Con Kolivas mentions in his FAQ,
+high-intensity CPU tasks on a relatively small number of cores are where the BFS
+scheduler shines. Watching 4K video on YouTube with BFS through the VM was also
+less choppy than doing the same with CFS (although this is a somewhat subjective
+measure).
