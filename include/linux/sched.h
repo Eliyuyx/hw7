@@ -1279,8 +1279,8 @@ struct sched_freezer_entity {
         struct rb_node run_node;
         struct load_weight load;
 
+        struct freezer_rq *freezer_rq; // freezer runqueue the entity belongs to
         struct list_head freezer_list_node; // link to the runqueue?
-
         struct task_struct *task; // task associated with this entity
 };
 

@@ -1,26 +1,57 @@
 #include "sched.h"
 //#include <linux/sched/sysctl.h>
 
-/*  */
+/* initialize freezer runqueue */
+void init_freezer_rq(struct freezer_rq *freezer_rq) 
+{
+        INIT_LIST_HEAD(&freezer_rq->freezer_list);
+        freezer_rq->freezer_nr_running = 0;
+}
+
+
+/* Add a task to the freezer runqueue and increment number of tasks */
 static void
 enqueue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
-    // TODO: 
+        struct sched_freezer_entity *freezer_se = &p->freezer;
+        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
+        struct list_head *head = &freezer_rq->freezer_list;
+        struct list_head *node = &freezer_se->freezer_list_node;
+
+        // add to runqueue
+        list_add_tail(node, head);
+
+        // increment # of tasks on queue
+        freezer_rq->freezer_nr_running++;
 }
 
 
-/*  */
+/* Remove task from runqueue */
 static void
 dequeue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
-    // TODO:
+        struct sched_freezer_entity *freezer_se = &p->freezer;
+        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
+        struct list_head *entry = &freezer_se->freezer_list_node;
+
+        // delete from runqueue
+        list_del(entry);
+        
+        // decrement # of tasks on queue
+        freezer_rq->freezer_nr_running--;
 }
 
 
-/*  */
+/* Basically dequeues then enqueues a task (moves to end) */
 static void yield_task_freezer(struct rq *rq)
 {
-    // TODO:
+        struct sched_freezer_entity *freezer_se = &rq->curr->freezer;
+        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
+        struct list_head *head = &freezer_rq->freezer_list;
+        struct list_head *entry = &freezer_se->freezer_list_node;
+
+        // move task to end of queue
+        list_move_tail(entry, head);
 }
 
 
