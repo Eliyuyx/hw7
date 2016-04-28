@@ -96,11 +96,24 @@ static void put_prev_task_freezer(struct rq *rq, struct task_struct *prev)
 
 
 #ifdef CONFIG_SMP
-/*  */
+/* select the CPU (runqueue) to place task on */
 static int select_task_rq_freezer(struct task_struct *p, int cpu, int sd_flag, int flags)
 {
-    // TODO:
-    return 0;
+        int i = 0;
+        int new_cpu = cpu;
+        unsigned int min = UINT_MAX;
+        // check all CPUs to find CPU with minimum # of tasks
+        for_each_possible_cpu(i) {
+                struct freezer_rq *freezer_rq = &cpu_rq(i)->freezer;
+                unsigned int num_tasks = freezer_rq->freezer_nr_running;
+
+                if (num_tasks < min) {
+                        min = num_tasks;
+                        new_cpu = cpu;
+                }
+        }
+
+        return cpu;
 }
 #endif
 
