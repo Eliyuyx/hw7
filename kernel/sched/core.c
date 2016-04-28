@@ -3320,7 +3320,9 @@ static void __setscheduler(struct rq *rq, struct task_struct *p,
 	else
 		p->prio = normal_prio(p);
 
-	if (dl_prio(p->prio))
+        if (p->policy == SCHED_FREEZER)
+                p->sched_class = &freezer_sched_class;
+        else if (dl_prio(p->prio))
 		p->sched_class = &dl_sched_class;
 	else if (rt_prio(p->prio))
 		p->sched_class = &rt_sched_class;
@@ -3437,7 +3439,7 @@ recheck:
 		if (policy != SCHED_DEADLINE &&
 				policy != SCHED_FIFO && policy != SCHED_RR &&
 				policy != SCHED_NORMAL && policy != SCHED_BATCH &&
-				policy != SCHED_IDLE)
+				policy != SCHED_IDLE && policy != SCHED_FREEZER)
 			return -EINVAL;
 	}
 

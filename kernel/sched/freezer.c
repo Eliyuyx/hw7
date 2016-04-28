@@ -1,6 +1,9 @@
 #include "sched.h"
 //#include <linux/sched/sysctl.h>
 
+#define SCHED_FREEZER 7
+#define FREEZER_TIMESLICE HZ
+
 /* initialize freezer runqueue */
 void init_freezer_rq(struct freezer_rq *freezer_rq) 
 {
@@ -55,27 +58,40 @@ static void yield_task_freezer(struct rq *rq)
 }
 
 
-/*  */
+/* No preemption in freezer, so not needed. */
 static void 
 check_preempt_curr_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
-    // TODO:
 }
 
 
 /*  */
 static struct task_struct * 
-pick_next_task_freezer(struct rq *rq, struct task_struct *p)
+pick_next_task_freezer(struct rq *rq, struct task_struct *prev)
 {
-    // TODO:
-    return NULL;
+        struct sched_freezer_entity *next_se;
+        struct freezer_rq *freezer_rq = &rq->freezer;
+        struct task_struct *next;
+        put_prev_task(rq, prev);
+
+        next_se = list_entry(freezer_rq->freezer_list.next, 
+                        struct sched_freezer_entity, freezer_list_node);
+
+        next = container_of(next_se, struct task_struct, freezer);
+
+        return next;
 }
 
 
 /*  */
-static void put_prev_task_freezer(struct rq *rq, struct task_struct *p)
+static void put_prev_task_freezer(struct rq *rq, struct task_struct *prev)
 {
-    // TODO: 
+        struct sched_entity *prev_se = &prev->se;
+        
+        // if still on runqueue then put back on freezer queue
+        if (prev_se->on_rq)
+                enqueue_task_freezer(rq, prev, 0);
+
 }
 
 
@@ -142,7 +158,14 @@ static void set_curr_task_freezer(struct rq *rq)
 /*  */
 static void task_tick_freezer(struct rq *rq, struct task_struct *p, int queued)
 {
-    // TODO:
+        struct sched_freezer_entity *freezer_se = &p->freezer;
+        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
+        struct list_head *head = &freezer_rq->freezer_list;
+        struct list_head *entry = &freezer_se->freezer_list_node;
+
+        // move task to end of queue if not only task on queue
+        if (entry->prev != entry->next)
+                list_move_tail(entry, head);
 }
 
 
@@ -150,16 +173,14 @@ static void task_tick_freezer(struct rq *rq, struct task_struct *p, int queued)
 static unsigned int 
 get_rr_interval_freezer(struct rq *rq, struct task_struct *task)
 {
-    // TODO:
-    return 0;
+        return FREEZER_TIMESLICE;
 }
 
 
-/*  */
+/* No priority. Not needed. */
 static void 
 prio_changed_freezer(struct rq *rq, struct task_struct *p, int oldprio)
 {
-    // TODO:
 }
 
 
@@ -170,10 +191,9 @@ static void switched_to_freezer(struct rq *rq, struct task_struct *p)
 }
 
 
-/*  */
+/* No stat tracking so not needed. */
 static void update_curr_freezer(struct rq *rq)
 {
-    // TODO
 }
 
 
@@ -204,6 +224,8 @@ const struct sched_class freezer_sched_class = {
     
     .set_curr_task      = set_curr_task_freezer,
     .task_tick          = task_tick_freezer,
+//    .task_fork          = task_fork_freezer,
+//    .task_dead          = task_dead_freezer,
     
     .get_rr_interval    = get_rr_interval_freezer,
     
