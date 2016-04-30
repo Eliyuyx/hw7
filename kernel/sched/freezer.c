@@ -1,10 +1,9 @@
 #include "sched.h"
-//#include <linux/sched/sysctl.h>
 
 #define SCHED_FREEZER 7
 #define FREEZER_TIMESLICE HZ
 
-/* initialize freezer runqueue */
+/* Initialize freezer runqueue */
 void init_freezer_rq(struct freezer_rq *freezer_rq) 
 {
         INIT_LIST_HEAD(&freezer_rq->freezer_list);
@@ -16,16 +15,15 @@ void init_freezer_rq(struct freezer_rq *freezer_rq)
 static void
 enqueue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
-        struct sched_freezer_entity *freezer_se = &p->freezer;
-        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
-        struct list_head *head = &freezer_rq->freezer_list;
-        struct list_head *node = &freezer_se->freezer_list_node;
+        struct list_head *head = &rq->freezer.freezer_list;
+        struct list_head *node = &p->freezer.run_list;
+	trace_printk("MARK\n");
 
         // add to runqueue
         list_add_tail(node, head);
 
         // increment # of tasks on queue
-        freezer_rq->freezer_nr_running++;
+        rq->freezer.freezer_nr_running++;
 }
 
 
@@ -33,9 +31,9 @@ enqueue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 static void
 dequeue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
-        struct sched_freezer_entity *freezer_se = &p->freezer;
-        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
-        struct list_head *entry = &freezer_se->freezer_list_node;
+        struct freezer_rq *freezer_rq = &rq->freezer;
+        struct list_head *entry = &p->freezer.run_list;
+	trace_printk("MARK\n");
 
         // delete from runqueue
         list_del(entry);
@@ -45,53 +43,69 @@ dequeue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 }
 
 
-/* Basically dequeues then enqueues a task (moves to end) */
+/* Stub */
 static void yield_task_freezer(struct rq *rq)
 {
-        struct sched_freezer_entity *freezer_se = &rq->curr->freezer;
-        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
-        struct list_head *head = &freezer_rq->freezer_list;
-        struct list_head *entry = &freezer_se->freezer_list_node;
+}
 
-        // move task to end of queue
-        list_move_tail(entry, head);
+/* Stub */
+static bool yield_to_task_freezer(struct rq *rq, struct task_struct *p, bool preempt)
+{
+	return false;
 }
 
 
-/* No preemption in freezer, so not needed. */
+/* Stub */
 static void 
 check_preempt_curr_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
 }
 
 
-/*  */
+/* Choose the next task to run */
 static struct task_struct * 
 pick_next_task_freezer(struct rq *rq, struct task_struct *prev)
 {
-        struct sched_freezer_entity *next_se;
-        struct freezer_rq *freezer_rq = &rq->freezer;
-        struct task_struct *next;
-        put_prev_task(rq, prev);
+	struct sched_freezer_entity *next_se;
+	struct freezer_rq *freezer_rq = &rq->freezer;
+	trace_printk("MARK\n");
 
-        next_se = list_entry(freezer_rq->freezer_list.next, 
-                        struct sched_freezer_entity, freezer_list_node);
-
-        next = container_of(next_se, struct task_struct, freezer);
-
-        return next;
+	next_se = list_first_entry_or_null(&freezer_rq->freezer_list,
+			struct sched_freezer_entity, run_list);
+	if (next_se)
+		return container_of(next_se, struct task_struct, freezer);
+	else
+		return NULL;
 }
 
 
-/*  */
+/* Stub */
 static void put_prev_task_freezer(struct rq *rq, struct task_struct *prev)
 {
-        struct sched_entity *prev_se = &prev->se;
-        
-        // if still on runqueue then put back on freezer queue
-        if (prev_se->on_rq)
-                enqueue_task_freezer(rq, prev, 0);
+}
 
+
+/* Stub */
+static void migrate_task_rq_freezer(struct task_struct *p, int next_cpu)
+{
+}
+
+
+/* Stub */
+static void task_fork_freezer(struct task_struct *p)
+{
+}
+
+
+/* Stub */
+static void task_dead_freezer(struct task_struct *p)
+{
+}
+
+
+/* Stub */
+static void task_waking_freezer(struct task_struct *task)
+{
 }
 
 
@@ -99,90 +113,74 @@ static void put_prev_task_freezer(struct rq *rq, struct task_struct *prev)
 /* select the CPU (runqueue) to place task on */
 static int select_task_rq_freezer(struct task_struct *p, int cpu, int sd_flag, int flags)
 {
-        int i = 0;
-        int new_cpu = cpu;
-        unsigned int min = UINT_MAX;
-        // check all CPUs to find CPU with minimum # of tasks
-        for_each_possible_cpu(i) {
-                struct freezer_rq *freezer_rq = &cpu_rq(i)->freezer;
-                unsigned int num_tasks = freezer_rq->freezer_nr_running;
+	int i;
+	int num;
+	int new_cpu = -1;
+	int min = UINT_MAX;
 
-                if (num_tasks < min) {
-                        min = num_tasks;
-                        new_cpu = cpu;
-                }
-        }
+	struct freezer_rq *freezer_rq;
+	trace_printk("MARK\n");
 
-        return cpu;
+	for_each_possible_cpu(i) {
+		freezer_rq = &cpu_rq(i)->freezer;
+		num = freezer_rq->freezer_nr_running;
+
+		if (num < min) {
+			min = num;
+			new_cpu = i;
+		}
+	}
+
+	return new_cpu;
 }
 #endif
 
 
-/*  */
-static void 
-set_cpus_allowed_freezer(struct task_struct *p, const struct cpumask *new_mask)
-{
-    // TODO:
-}
-
-
-/*  */
+/* Stub */
 static void rq_online_freezer(struct rq *rq)
 {
-    // TODO:
 }
 
 
-/*  */
+/* Stub */
 static void rq_offline_freezer(struct rq *rq)
 {
-    // TODO:
 }
 
 
-/*  */
+/* Stub */
 static void post_schedule_freezer(struct rq *rq)
 {
-    // TODO:
 }
 
 
-/*  */
+/* Stub */
 static void task_woken_freezer(struct rq *rq, struct task_struct *p)
 {
-    // TODO:
 }
 
 
-/*  */
+/* Stub */
 static void switched_from_freezer(struct rq *rq, struct task_struct *p)
 {
-    // TODO:
 }
 
 
-/*  */
-static void set_curr_task_freezer(struct rq *rq)
-{
-    // TODO:
-}
-
-
-/*  */
+/* Corresponds to a single tick of the clock */
 static void task_tick_freezer(struct rq *rq, struct task_struct *p, int queued)
 {
-        struct sched_freezer_entity *freezer_se = &p->freezer;
-        struct freezer_rq *freezer_rq = freezer_se->freezer_rq;
-        struct list_head *head = &freezer_rq->freezer_list;
-        struct list_head *entry = &freezer_se->freezer_list_node;
+	struct sched_freezer_entity *freezer_se = &p->freezer;
+	trace_printk("MARK\n");
+	freezer_se->time_slice--;
 
-        // move task to end of queue if not only task on queue
-        if (entry->prev != entry->next)
-                list_move_tail(entry, head);
+	if (freezer_se->time_slice <= 0) {
+		list_move_tail(&freezer_se->run_list, &rq->freezer.freezer_list);
+		freezer_se->time_slice = FREEZER_TIMESLICE;
+	}
 }
 
 
-/*  */
+/* Return the round robin timeslice */
 static unsigned int 
 get_rr_interval_freezer(struct rq *rq, struct task_struct *task)
 {
@@ -190,21 +188,30 @@ get_rr_interval_freezer(struct rq *rq, struct task_struct *task)
 }
 
 
-/* No priority. Not needed. */
+/* Stub */
 static void 
 prio_changed_freezer(struct rq *rq, struct task_struct *p, int oldprio)
 {
 }
 
-
-/*  */
-static void switched_to_freezer(struct rq *rq, struct task_struct *p)
+/* Assign the freezer policy to the current task */
+static void set_curr_task_freezer(struct rq *rq)
 {
-    // TODO:
+	struct task_struct *p = rq->curr;
+	trace_printk("MARK\n");
+
+	p->policy = SCHED_FREEZER;
+	p->freezer.time_slice = FREEZER_TIMESLICE;
 }
 
 
-/* No stat tracking so not needed. */
+/* Stub */
+static void switched_to_freezer(struct rq *rq, struct task_struct *p)
+{
+}
+
+
+/* Stub */
 static void update_curr_freezer(struct rq *rq)
 {
 }
@@ -218,6 +225,7 @@ const struct sched_class freezer_sched_class = {
     .enqueue_task       = enqueue_task_freezer,       
     .dequeue_task       = dequeue_task_freezer,       
     .yield_task         = yield_task_freezer,         
+    .yield_to_task	= yield_to_task_freezer,
     
     .check_preempt_curr = check_preempt_curr_freezer,
 
@@ -226,19 +234,20 @@ const struct sched_class freezer_sched_class = {
 
 #ifdef CONFIG_SMP
     .select_task_rq     = select_task_rq_freezer,
+    .migrate_task_rq	= migrate_task_rq_freezer,
     
-    .set_cpus_allowed   = set_cpus_allowed_freezer,
     .rq_online          = rq_online_freezer,
     .rq_offline         = rq_offline_freezer,
     .post_schedule      = post_schedule_freezer,
     .task_woken         = task_woken_freezer,
     .switched_from      = switched_from_freezer,
+    .task_waking	= task_waking_freezer,
 #endif
     
     .set_curr_task      = set_curr_task_freezer,
     .task_tick          = task_tick_freezer,
-//    .task_fork          = task_fork_freezer,
-//    .task_dead          = task_dead_freezer,
+    .task_fork          = task_fork_freezer,
+    .task_dead          = task_dead_freezer,
     
     .get_rr_interval    = get_rr_interval_freezer,
     

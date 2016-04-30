@@ -1,4 +1,3 @@
-
 #include <linux/sched.h>
 #include <linux/sched/sysctl.h>
 #include <linux/sched/rt.h>
@@ -508,12 +507,12 @@ struct dl_rq {
 
 /* Freezer runqueue */
 struct freezer_rq {
+	// Number of running tasks
         unsigned long freezer_nr_running;
-        
-        /* runqueue is a simple FIFO queue */
+	// List of freezer nodes
         struct list_head freezer_list;
-
-        u64 clock;
+	// The runqueue parent object
+	struct rq *rq;
 };
 
 #ifdef CONFIG_SMP
