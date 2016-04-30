@@ -16,13 +16,13 @@ Part 4: 81db3f4c9d35e2dfbcd5327f3bb50127b5c369b8
 
 Part 5: 7a1606c8f3cf0a1abe80d50debfd006cd42387b1
 
-Part 6: c840ce4ef09687858f61f5b872285611e0cfd833
+Part 6: a73fc536e8f9e112076a70bc674ba70580351d73
 
-Part 7: c840ce4ef09687858f61f5b872285611e0cfd833
+Part 7: a73fc536e8f9e112076a70bc674ba70580351d73
 
-Part 8: We were unable to complete this part
+Part 8: a73fc536e8f9e112076a70bc674ba70580351d73
 
-Part 9: We were unable to complete this part
+Part 9: a73fc536e8f9e112076a70bc674ba70580351d73
 
 
 PART 1 WRITTEN ANSWERS
@@ -281,3 +281,10 @@ our sample session:
  7 #7    3  0.1  0   809 rajiv    gvim -R set-freezer.c
 
 We also included our version of set-freezer.c in our test directory.
+
+
+PART 9 WRITTEN ANSWERS
+
+We noted that our scheduler was not as responsive as BFS or CFS for IO-bound
+processes like gvim. This was expected, due to the simplicity of the
+round-robin algorithm we used.
