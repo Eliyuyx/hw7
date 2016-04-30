@@ -1,7 +1,6 @@
 #include "sched.h"
 
-#define SCHED_FREEZER 7
-#define FREEZER_TIMESLICE HZ
+#define FREEZER_TIMESLICE (100 * HZ / 1000)
 
 /* Initialize freezer runqueue */
 void init_freezer_rq(struct freezer_rq *freezer_rq) 
@@ -46,11 +45,13 @@ dequeue_task_freezer(struct rq *rq, struct task_struct *p, int flags)
 /* Stub */
 static void yield_task_freezer(struct rq *rq)
 {
+	trace_printk("MARK\n");
 }
 
 /* Stub */
 static bool yield_to_task_freezer(struct rq *rq, struct task_struct *p, bool preempt)
 {
+	trace_printk("MARK\n");
 	return false;
 }
 
@@ -59,6 +60,7 @@ static bool yield_to_task_freezer(struct rq *rq, struct task_struct *p, bool pre
 static void 
 check_preempt_curr_freezer(struct rq *rq, struct task_struct *p, int flags)
 {
+	trace_printk("MARK\n");
 }
 
 
@@ -82,30 +84,21 @@ pick_next_task_freezer(struct rq *rq, struct task_struct *prev)
 /* Stub */
 static void put_prev_task_freezer(struct rq *rq, struct task_struct *prev)
 {
-}
-
-
-/* Stub */
-static void migrate_task_rq_freezer(struct task_struct *p, int next_cpu)
-{
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void task_fork_freezer(struct task_struct *p)
 {
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void task_dead_freezer(struct task_struct *p)
 {
-}
-
-
-/* Stub */
-static void task_waking_freezer(struct task_struct *task)
-{
+	trace_printk("MARK\n");
 }
 
 
@@ -139,30 +132,28 @@ static int select_task_rq_freezer(struct task_struct *p, int cpu, int sd_flag, i
 /* Stub */
 static void rq_online_freezer(struct rq *rq)
 {
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void rq_offline_freezer(struct rq *rq)
 {
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void post_schedule_freezer(struct rq *rq)
 {
-}
-
-
-/* Stub */
-static void task_woken_freezer(struct rq *rq, struct task_struct *p)
-{
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void switched_from_freezer(struct rq *rq, struct task_struct *p)
 {
+	trace_printk("MARK\n");
 }
 
 
@@ -184,6 +175,7 @@ static void task_tick_freezer(struct rq *rq, struct task_struct *p, int queued)
 static unsigned int 
 get_rr_interval_freezer(struct rq *rq, struct task_struct *task)
 {
+	trace_printk("MARK\n");
         return FREEZER_TIMESLICE;
 }
 
@@ -192,6 +184,7 @@ get_rr_interval_freezer(struct rq *rq, struct task_struct *task)
 static void 
 prio_changed_freezer(struct rq *rq, struct task_struct *p, int oldprio)
 {
+	trace_printk("MARK\n");
 }
 
 /* Assign the freezer policy to the current task */
@@ -208,12 +201,14 @@ static void set_curr_task_freezer(struct rq *rq)
 /* Stub */
 static void switched_to_freezer(struct rq *rq, struct task_struct *p)
 {
+	trace_printk("MARK\n");
 }
 
 
 /* Stub */
 static void update_curr_freezer(struct rq *rq)
 {
+	trace_printk("MARK\n");
 }
 
 
@@ -234,14 +229,11 @@ const struct sched_class freezer_sched_class = {
 
 #ifdef CONFIG_SMP
     .select_task_rq     = select_task_rq_freezer,
-    .migrate_task_rq	= migrate_task_rq_freezer,
     
     .rq_online          = rq_online_freezer,
     .rq_offline         = rq_offline_freezer,
     .post_schedule      = post_schedule_freezer,
-    .task_woken         = task_woken_freezer,
     .switched_from      = switched_from_freezer,
-    .task_waking	= task_waking_freezer,
 #endif
     
     .set_curr_task      = set_curr_task_freezer,

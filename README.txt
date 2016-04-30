@@ -247,13 +247,37 @@ either there is an overflow or this is a consequence of the 32-bit discrepancy
 between jiffies and jiffies_64.
 
 
+PART 6 WRITTEN ANSWERS
+
+We correctly verified with the given ps command that our changes had no effect.
 
 
+PART 7 WRITTEN ANSWERS
 
+We started our scheduler for 6 gvim processes (I/O-bound). Here is the result of
+our sample session:
 
+[rajiv@archlinux test]$ ./set-freezer 789
+[789] sched policy changed
+[rajiv@archlinux test]$ ./set-freezer 793
+[793] sched policy changed
+[rajiv@archlinux test]$ ./set-freezer 797
+[797] sched policy changed
+[rajiv@archlinux test]$ ./set-freezer 801
+[801] sched policy changed
+[rajiv@archlinux test]$ ./set-freezer 805
+[805] sched policy changed
+[rajiv@archlinux test]$ ./set-freezer 809
+[809] sched policy changed
 
+ 0 TS    0  0.0  0   663 rajiv     \_ bash
+ 0 TS    2  0.0  0   670 rajiv     \_ bash
+ 0 TS    3  0.0  0   822 rajiv         \_ ps -e --forest -o sched,policy,psr,pcpu,c,pid,user,cmd
+ 7 #7    2  0.1  0   789 rajiv    gvim -R set-freezer.c
+ 7 #7    0  0.1  0   793 rajiv    gvim -R set-freezer.c
+ 7 #7    2  0.1  0   797 rajiv    gvim -R set-freezer.c
+ 7 #7    0  0.1  0   801 rajiv    gvim -R set-freezer.c
+ 7 #7    2  0.1  0   805 rajiv    gvim -R set-freezer.c
+ 7 #7    3  0.1  0   809 rajiv    gvim -R set-freezer.c
 
-
-
-
-
+We also included our version of set-freezer.c in our test directory.
