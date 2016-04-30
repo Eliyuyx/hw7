@@ -6,19 +6,19 @@ RAJIV THAMBURAJ <rjt2132@columbia.edu>
 
 COMMIT IDs
 
-Part 1: 
+Part 1: 4e97768aff2100a23ee59b414c8df9aff5f3dda8
 
-Part 2: 
+Part 2: 299d7a9905f89cb485d189ea9eaea9d8ef29b36e
 
-Part 3: 
+Part 3: 0695108b4829b75d8efdfe759c6c7120aced220d
 
-Part 4: 
+Part 4: 81db3f4c9d35e2dfbcd5327f3bb50127b5c369b8
 
-Part 5: 
+Part 5: 7a1606c8f3cf0a1abe80d50debfd006cd42387b1
 
-Part 6: 
+Part 6: c840ce4ef09687858f61f5b872285611e0cfd833
 
-Part 7: 
+Part 7: c840ce4ef09687858f61f5b872285611e0cfd833
 
 Part 8: We were unable to complete this part
 
