@@ -6,7 +6,23 @@ RAJIV THAMBURAJ <rjt2132@columbia.edu>
 
 COMMIT IDs
 
-Commit IDs go here...
+Part 1: 
+
+Part 2: 
+
+Part 3: 
+
+Part 4: 
+
+Part 5: 
+
+Part 6: 
+
+Part 7: 
+
+Part 8: We were unable to complete this part
+
+Part 9: We were unable to complete this part
 
 
 PART 1 WRITTEN ANSWERS
@@ -201,3 +217,43 @@ high-intensity CPU tasks on a relatively small number of cores are where the BFS
 scheduler shines. Watching 4K video on YouTube with BFS through the VM was also
 less choppy than doing the same with CFS (although this is a somewhat subjective
 measure).
+
+
+PART 5 WRITTEN ANSWERS
+
+The advantages of a larger HZ include finer resolution and increased accuracy,
+system calls that rely on timeouts have higher precision, measurements are
+recorded more correctly, and process preemption occurs more accurately.
+
+The disadvantages of a larger HZ include more frequent time interrupts (so more
+unnecessary overhead), more time spent executing timer interrupts (which causes
+an increase in power consumption and more frequent thrashing).
+
+According to the kernel files, the HZ is 100 as expected.
+
+Jiffies is a global variable that includes the number of ticks that have occured
+since the system booted. On boot, the kernal initiailizes this to 0, and it is
+incremented for each timer interrupt. Thus there are HZ jiffies in a second. The
+variables jiffies_64 is a 64-bit version of jiffies that can hold much larger
+numbers. However, This is not useful in many cases becuase we usually want to
+measure differences in time.
+
+The current jiffies value is 354122, which is 3541.22 seconds (since HZ is 100).
+This is equivalent to 59 minutes, which is equivalent to the uptime value.
+
+We checked jiffies and found that it was 372367 while the value of jiffies_64
+was 4295339663. The difference between these two values is 2^32, indicating that
+either there is an overflow or this is a consequence of the 32-bit discrepancy
+between jiffies and jiffies_64.
+
+
+
+
+
+
+
+
+
+
+
+
